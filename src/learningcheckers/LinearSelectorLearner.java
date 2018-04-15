@@ -27,7 +27,6 @@ public class LinearSelectorLearner {
      */
     public LinearSelector learnSupervised(int rounds, double goalFraction, LinearSelector base, LinearSelector teacher) {
         LinearSelector selector = (LinearSelector)base.clone();
-        //TODO: Bitte Implementieren, also selector verbessern lassen
         return null;
     }
     
@@ -39,7 +38,7 @@ public class LinearSelectorLearner {
     private void trainSupervised(LinearSelector s, List<Board> li, LinearSelector teacher) {    		
     	 	for(Board b : li) {
 		   	double fehler = teacher.evaluate(b, 1) - s.evaluate(b, 1);
-		   	double factBasis = s.getFactBasis() + 0.01 * fehler * s.get
+		   	double factBasis = 0 + 0.01 * fehler * s.getFactBasis();
 		    double factNrPiecesSelf;
 		    double factNrPiecesOther;
 		    double factNrKingsSelf;
@@ -88,12 +87,20 @@ public class LinearSelectorLearner {
      */
     private double fractionOfGamesWon(LinearSelector base, LinearSelector learned, int numberOfGames){
 	    	int gamesWon = 0;
+	    	int noTie = 0;
 	    	for (int i = 0; i < numberOfGames; i++) {
             Game g = new Game(learned, base, false);
-            if (g.run(false) == 1) gamesWon++;
+            int winner = g.run(false);
+            if (winner == -1) {
+            		gamesWon++;
+            		noTie++;
+            }
+            else if(winner == 2) {
+            		noTie++;
+            }
             g.closeGameWindow();
         }
-        return gamesWon/numberOfGames;
+        return gamesWon/noTie;
     }
     
     
