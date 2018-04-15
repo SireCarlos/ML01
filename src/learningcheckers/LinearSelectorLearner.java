@@ -1,5 +1,6 @@
 package learningcheckers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LinearSelectorLearner {
@@ -36,7 +37,11 @@ public class LinearSelectorLearner {
      * Verbessert den gegebenen Selector s, wobei s sich an den Bewertungen von teacher orientiert.
      */
     private void trainSupervised(LinearSelector s, List<Board> li, LinearSelector teacher) {
-        //TODO: Bitte Implementieren!
+    		ArrayList<double> resultStudent = new ArrayList<double>();
+    		double[] resultTeacher = {};
+    	 	for(Board b : li) {
+		   	results.evaluate(b, 0);
+	   	}
     }
     
     
@@ -93,7 +98,7 @@ public class LinearSelectorLearner {
         LinearSelector learned = 
                 learner.learnUnsupervised(1000000, 0.8, base);
         System.out.println(learned);
-        System.out.println(learner.fractionOfGamesWon(base, learned, 900));
+        //System.out.println(learner.fractionOfGamesWon(base, learned, 900));
     }
 }
 
