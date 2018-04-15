@@ -26,11 +26,21 @@ public class LinearSelectorLearner {
      * @return Den gelernten Selektor.
      */
     public LinearSelector learnSupervised(int rounds, double goalFraction, LinearSelector base, LinearSelector teacher) {
-        LinearSelector selector = (LinearSelector)base.clone();
-        Game g = new Game(selector, base, false);
-        //fractionOfGame
-        //trainSupervised(selector, )
-        return null;
+    	LinearSelector selector = (LinearSelector)base.clone();
+    	for (int round = 0; round < rounds; rounds++) {
+    		Game g = new Game(base, selector, false);
+            g.run(false);
+            g.closeGameWindow();
+            List<Board> li = g.getHistory();
+            trainSupervised(selector, li, teacher);
+            double result = fractionOfGamesWon(base, selector, 1000);
+            if(result > 0.98) {
+            	System.out.println(result);
+            	return selector;
+            }
+    	}
+    	System.out.println("Maximum rounds played");
+        return selector;
     }
     
     
