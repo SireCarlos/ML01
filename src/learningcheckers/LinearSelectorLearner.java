@@ -27,7 +27,7 @@ public class LinearSelectorLearner {
      */
     public LinearSelector learnSupervised(int rounds, double goalFraction, LinearSelector base, LinearSelector teacher) {
     	LinearSelector learner = (LinearSelector)base.clone();
-    	for (int round = 0; round < rounds; rounds++) {
+    	for (int round = 0; round < rounds; round++) {
     		Game g = new Game(base, learner, false);
             g.run(false);
             g.closeGameWindow();
@@ -37,6 +37,9 @@ public class LinearSelectorLearner {
             if(result > goalFraction) {
             	System.out.println("result > goalFraction: " + result + " after " + round + " rounds");
             	return learner;
+            }
+            else {
+            	System.out.println("learner lost to base with result: " + result + "in round " + round);
             }
     	}
     	System.out.println("Maximum rounds played");
@@ -49,7 +52,7 @@ public class LinearSelectorLearner {
      * Verbessert den gegebenen Selector s, wobei s sich an den Bewertungen von teacher orientiert.
      */
     private void trainSupervised(LinearSelector s, List<Board> li, LinearSelector teacher) {    		
-	   	double c = 0.01;
+	   	double c = 0.0001;
     	double factBasis = s.getFactBasis();
 	    double factNrPiecesSelf = s.getFactNrPiecesSelf();
 	    double factNrPiecesOther = s.getFactNrPiecesOther();
@@ -118,8 +121,8 @@ public class LinearSelectorLearner {
      * @return Den Bruchteil der Spiele, der von learned gewonnen wurde.
      */
     private double fractionOfGamesWon(LinearSelector base, LinearSelector learned, int numberOfGames){
-	    	int gamesWon = 0;
-	    	int noTie = 0;
+	    	double gamesWon = 0;
+	    	double noTie = 0;
 	    	for (int i = 0; i < numberOfGames; i++) {
             Game g = new Game(base, learned, false);
             int winner = g.run(false);
@@ -132,7 +135,8 @@ public class LinearSelectorLearner {
             }
             g.closeGameWindow();
         }
-        return gamesWon/noTie;
+	    //System.out.println(gamesWon/noTie);
+	    return gamesWon/noTie;
     }
     
     
@@ -144,9 +148,9 @@ public class LinearSelectorLearner {
         LinearSelector learned = learner.learnUnsupervised(1000000, 0.8, base);
         HumanIntuitionLinearSelector human = new HumanIntuitionLinearSelector();
         //System.out.println(learned);
-        System.out.println("base vs human " + learner.fractionOfGamesWon(base, human, 100));
-        System.out.println("human vs base " + learner.fractionOfGamesWon(human, base, 100));
-        learner.learnSupervised(100, 0.70, base, base);
+        System.out.println("base vs human(=learner)" + learner.fractionOfGamesWon(base, human, 100));
+        System.out.println("human vs base(=learner) " + learner.fractionOfGamesWon(human, base, 100));
+        learner.learnSupervised(1000, 0.98, base, human);
     }
 }
 
