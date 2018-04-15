@@ -28,7 +28,7 @@ public class LinearSelectorLearner {
     public LinearSelector learnSupervised(int rounds, double goalFraction, LinearSelector base, LinearSelector teacher) {
     	LinearSelector learner = (LinearSelector)base.clone();
     	for (int round = 0; round < rounds; round++) {
-    		Game g = new Game(base, learner, false);
+    		Game g = new Game(learner, learner, false);
             g.run(false);
             g.closeGameWindow();
             List<Board> li = g.getHistory();
@@ -63,7 +63,7 @@ public class LinearSelectorLearner {
 	    double factNrStuckSelfPieces = s.getFactNrStuckSelfPieces();
 	    double factNrStuckOtherPieces = s.getFactNrStuckOtherPieces();
 		for(Board b : li) {
-		   	double fehler = teacher.evaluate(b, 1) - s.evaluate(b, 1);
+		   	double fehler = teacher.evaluate(b, 2) - s.evaluate(b, 2);
 		   	factBasis = factBasis + c * fehler * s.getFactBasis();
 		   	factNrPiecesSelf = factNrPiecesSelf + c * fehler * s.getFactNrPiecesSelf();
 		   	factNrPiecesOther = factNrPiecesOther + c * fehler * s.getFactNrPiecesOther();
@@ -124,17 +124,17 @@ public class LinearSelectorLearner {
 	    	double gamesWon = 0;
 	    	double noTie = 0;
 	    	for (int i = 0; i < numberOfGames; i++) {
-            Game g = new Game(base, learned, false);
-            int winner = g.run(false);
-            if (winner == 2) {
+	    		Game g = new Game(base, learned, false);
+	    		int winner = g.run(false);
+	    		if (winner == 2) {
             		gamesWon++;
             		noTie++;
-            }
-            else if(winner == 1) {
+	    		}
+	    		else if(winner == 1) {
             		noTie++;
-            }
-            g.closeGameWindow();
-        }
+	    		}
+	    		g.closeGameWindow();
+	    	}
 	    //System.out.println(gamesWon/noTie);
 	    return gamesWon/noTie;
     }
@@ -144,13 +144,16 @@ public class LinearSelectorLearner {
     
     public static void main(String[] args) {
         LinearSelectorLearner learner = new LinearSelectorLearner();
+        //LinearSelector base = new LinearSelector(8);
         LinearSelector base = new LinearSelector(8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0);
         LinearSelector learned = learner.learnUnsupervised(1000000, 0.8, base);
         HumanIntuitionLinearSelector human = new HumanIntuitionLinearSelector();
         //System.out.println(learned);
-        System.out.println("base vs human(=learner)" + learner.fractionOfGamesWon(base, human, 100));
-        System.out.println("human vs base(=learner) " + learner.fractionOfGamesWon(human, base, 100));
-        learner.learnSupervised(1000, 0.98, base, human);
+        System.out.println("base vs human(=learner)" + learner.fractionOfGamesWon(base, human, 1000));
+        System.out.println("human vs base(=learner) " + learner.fractionOfGamesWon(human, base, 1000));
+        LinearSelector test = learner.learnSupervised(100, 0.98, base, human);
+        System.out.println("base vs base(=learner) " + learner.fractionOfGamesWon(base, base, 1000));
+        System.out.println("base vs base(=learner) " + learner.fractionOfGamesWon(base, test, 1000));
     }
 }
 
