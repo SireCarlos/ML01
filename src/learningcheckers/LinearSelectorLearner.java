@@ -36,11 +36,18 @@ public class LinearSelectorLearner {
      * Lernt aus dem Spielverlauf, der durch li gegeben ist.
      * Verbessert den gegebenen Selector s, wobei s sich an den Bewertungen von teacher orientiert.
      */
-    private void trainSupervised(LinearSelector s, List<Board> li, LinearSelector teacher) {
-    		ArrayList<double> resultStudent = new ArrayList<double>();
-    		double[] resultTeacher = {};
+    private void trainSupervised(LinearSelector s, List<Board> li, LinearSelector teacher) {    		
     	 	for(Board b : li) {
-		   	results.evaluate(b, 0);
+		   	double fehler = teacher.evaluate(b, 1) - s.evaluate(b, 1);
+		   	double factBasis = s.getFactBasis() + 0.01 * fehler * s.get
+		    double factNrPiecesSelf;
+		    double factNrPiecesOther;
+		    double factNrKingsSelf;
+		    double factNrKingsOther;
+		    double factNrThreatenedPiecesSelf;
+		    double factNrThreatenedPiecesOther;
+		    double factNrStuckSelfPieces;
+		    double factNrStuckOtherPieces;
 	   	}
     }
     
@@ -95,8 +102,7 @@ public class LinearSelectorLearner {
     public static void main(String[] args) {
         LinearSelectorLearner learner = new LinearSelectorLearner();
         LinearSelector base = new LinearSelector(8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0);
-        LinearSelector learned = 
-                learner.learnUnsupervised(1000000, 0.8, base);
+        LinearSelector learned = learner.learnUnsupervised(1000000, 0.8, base);
         System.out.println(learned);
         //System.out.println(learner.fractionOfGamesWon(base, learned, 900));
     }
