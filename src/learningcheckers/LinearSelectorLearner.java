@@ -39,19 +39,37 @@ public class LinearSelectorLearner {
      * Verbessert den gegebenen Selector s, wobei s sich an den Bewertungen von teacher orientiert.
      */
     private void trainSupervised(LinearSelector s, List<Board> li, LinearSelector teacher) {    		
-    	 	for(Board b : li) {
+	   	double c = 0.01;
+    	double factBasis = s.getFactBasis();
+	    double factNrPiecesSelf = s.getFactNrPiecesSelf();
+	    double factNrPiecesOther = s.getFactNrPiecesOther();
+	    double factNrKingsSelf = s.getFactNrKingsSelf();
+	    double factNrKingsOther = s.getFactNrKingsOther();
+	    double factNrThreatenedPiecesSelf = s.getFactNrThreatenedPiecesSelf();
+	    double factNrThreatenedPiecesOther = s.getFactNrThreatenedPiecesOther();
+	    double factNrStuckSelfPieces = s.getFactNrStuckSelfPieces();
+	    double factNrStuckOtherPieces = s.getFactNrStuckOtherPieces();
+		for(Board b : li) {
 		   	double fehler = teacher.evaluate(b, 1) - s.evaluate(b, 1);
-		   	double newFactBasis = 0 + 0.01 * fehler * s.getFactBasis();
-		    double newFactNrPiecesSelf = 0 + 0.01 * fehler * s.getFactNrPiecesSelf();
-		    double newFactNrPiecesOther = 0 + 0.01 * fehler * s.getFactNrKingsOther();
-		    double newFactNrKingsSelf = 0 + 0.01 * fehler * s.getFactNrKingsSelf();
-		    double newFactNrKingsOther = 0 + 0.01 * fehler * s.getFactNrKingsOther();
-		    double newFactNrThreatenedPiecesSelf = 0 + 0.01 * fehler * s.getFactNrThreatenedPiecesSelf();
-		    double newFactNrThreatenedPiecesOther = 0 + 0.01 * fehler * s.getFactNrThreatenedPiecesOther();
-		    double newFactNrStuckSelfPieces = 0 + 0.01 * fehler * s.getFactNrStuckSelfPieces();
-		    double newFactNrStuckOtherPieces = 0 + 0.01 * fehler * s.getFactNrStuckOtherPieces();
-	   	}
-    	 	
+		   	factBasis = factBasis + c * fehler * s.getFactBasis();
+		   	factNrPiecesSelf = factNrPiecesSelf + c * fehler * s.getFactNrPiecesSelf();
+		   	factNrPiecesOther = factNrPiecesOther + c * fehler * s.getFactNrPiecesOther();
+		   	factNrKingsSelf = factNrKingsSelf + c * fehler * s.getFactNrKingsSelf();
+		   	factNrKingsOther = factNrKingsOther + c * fehler * s.getFactNrKingsOther();
+		   	factNrThreatenedPiecesSelf = factNrThreatenedPiecesSelf + c * fehler * s.getFactNrThreatenedPiecesSelf();
+		   	factNrThreatenedPiecesOther = factNrThreatenedPiecesOther + c * fehler * s.getFactNrThreatenedPiecesOther();
+		   	factNrStuckSelfPieces = factNrStuckSelfPieces + c * fehler * s.getFactNrStuckSelfPieces();
+		   	factNrStuckOtherPieces = factNrStuckOtherPieces + c * fehler * s.getFactNrStuckOtherPieces();		   	
+		}
+		s.setFactBasis(factBasis);
+		s.setFactNrPiecesSelf(factNrPiecesSelf);
+		s.setFactNrPiecesOther(factNrPiecesOther);
+		s.setFactNrKingsSelf(factNrKingsSelf);
+		s.setFactNrKingsOther(factNrKingsOther);
+		s.setFactNrThreatenedPiecesSelf(factNrThreatenedPiecesSelf);
+		s.setFactNrThreatenedPiecesOther(factNrThreatenedPiecesOther);
+		s.setFactNrStuckSelfPieces(factNrStuckSelfPieces);
+		s.setFactNrStuckOtherPieces(factNrStuckOtherPieces);
     }
     
     
@@ -93,13 +111,13 @@ public class LinearSelectorLearner {
 	    	int gamesWon = 0;
 	    	int noTie = 0;
 	    	for (int i = 0; i < numberOfGames; i++) {
-            Game g = new Game(learned, base, false);
+            Game g = new Game(base, learned, false);
             int winner = g.run(false);
-            if (winner == 1) {
+            if (winner == 2) {
             		gamesWon++;
             		noTie++;
             }
-            else if(winner == 2) {
+            else if(winner == 1) {
             		noTie++;
             }
             g.closeGameWindow();
