@@ -52,7 +52,7 @@ public class LinearSelectorLearner {
      * Verbessert den gegebenen Selector s, wobei s sich an den Bewertungen von teacher orientiert.
      */
     private void trainSupervised(LinearSelector s, List<Board> li, LinearSelector teacher) {    		
-	   	double c = 0.0001;
+	   	double c = 0.000015;
     	double factBasis = s.getFactBasis();
 	    double factNrPiecesSelf = s.getFactNrPiecesSelf();
 	    double factNrPiecesOther = s.getFactNrPiecesOther();
@@ -64,15 +64,14 @@ public class LinearSelectorLearner {
 	    double factNrStuckOtherPieces = s.getFactNrStuckOtherPieces();
 		for(Board b : li) {
 		   	double fehler = teacher.evaluate(b, 2) - s.evaluate(b, 2);
-		   	factBasis = factBasis + c * fehler * s.getFactBasis();
-		   	factNrPiecesSelf = factNrPiecesSelf + c * fehler * s.getFactNrPiecesSelf();
-		   	factNrPiecesOther = factNrPiecesOther + c * fehler * s.getFactNrPiecesOther();
-		   	factNrKingsSelf = factNrKingsSelf + c * fehler * s.getFactNrKingsSelf();
-		   	factNrKingsOther = factNrKingsOther + c * fehler * s.getFactNrKingsOther();
-		   	factNrThreatenedPiecesSelf = factNrThreatenedPiecesSelf + c * fehler * s.getFactNrThreatenedPiecesSelf();
-		   	factNrThreatenedPiecesOther = factNrThreatenedPiecesOther + c * fehler * s.getFactNrThreatenedPiecesOther();
-		   	factNrStuckSelfPieces = factNrStuckSelfPieces + c * fehler * s.getFactNrStuckSelfPieces();
-		   	factNrStuckOtherPieces = factNrStuckOtherPieces + c * fehler * s.getFactNrStuckOtherPieces();		   	
+		   	factNrPiecesSelf = factNrPiecesSelf + c * fehler * b.getNumberOfPiecesFor(2);
+		   	factNrPiecesOther = factNrPiecesOther + c * fehler * b.getNumberOfPiecesFor(1);
+		   	factNrKingsSelf = factNrKingsSelf + c * fehler * b.getNumberOfKingsFor(2);
+		   	factNrKingsOther = factNrKingsOther + c * fehler * b.getNumberOfKingsFor(1);
+		   	factNrThreatenedPiecesSelf = factNrThreatenedPiecesSelf + c * fehler * s.piecesThreatened(b, 2);
+		   	factNrThreatenedPiecesOther = factNrThreatenedPiecesOther + c * fehler * s.piecesThreatened(b, 1);
+		   	factNrStuckSelfPieces = factNrStuckSelfPieces + c * fehler * s.piecesStuck(b, 2);
+		   	factNrStuckOtherPieces = factNrStuckOtherPieces + c * fehler * s.piecesStuck(b, 1);		   	
 		}
 		s.setFactBasis(factBasis);
 		s.setFactNrPiecesSelf(factNrPiecesSelf);
@@ -149,11 +148,14 @@ public class LinearSelectorLearner {
         LinearSelector learned = learner.learnUnsupervised(1000000, 0.8, base);
         HumanIntuitionLinearSelector human = new HumanIntuitionLinearSelector();
         //System.out.println(learned);
-        System.out.println("base vs human(=learner)" + learner.fractionOfGamesWon(base, human, 1000));
-        System.out.println("human vs base(=learner) " + learner.fractionOfGamesWon(human, base, 1000));
+//        System.out.println("base vs human(=learner)" + learner.fractionOfGamesWon(base, human, 1000));
+//        System.out.println("human vs base(=learner) " + learner.fractionOfGamesWon(human, base, 1000));
         LinearSelector test = learner.learnSupervised(100, 0.98, base, human);
         System.out.println("base vs base(=learner) " + learner.fractionOfGamesWon(base, base, 1000));
         System.out.println("base vs base(=learner) " + learner.fractionOfGamesWon(base, test, 1000));
+        Game g = new Game(base, test, false);
+        g.run(true);
+        g.closeGameWindow();
     }
 }
 
