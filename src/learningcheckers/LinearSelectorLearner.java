@@ -27,6 +27,9 @@ public class LinearSelectorLearner {
      */
     public LinearSelector learnSupervised(int rounds, double goalFraction, LinearSelector base, LinearSelector teacher) {
         LinearSelector selector = (LinearSelector)base.clone();
+        Game g = new Game(selector, base, false);
+        fractionOfGame
+        trainSupervised(selector, )
         return null;
     }
     
@@ -91,7 +94,7 @@ public class LinearSelectorLearner {
 	    	for (int i = 0; i < numberOfGames; i++) {
             Game g = new Game(learned, base, false);
             int winner = g.run(false);
-            if (winner == -1) {
+            if (winner == 1) {
             		gamesWon++;
             		noTie++;
             }
