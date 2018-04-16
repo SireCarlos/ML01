@@ -35,14 +35,16 @@ public class LinearSelectorLearner {
             trainSupervised(learner, li, teacher);
             double result = fractionOfGamesWon(base, learner, 100);
             if(result > goalFraction) {
-            	System.out.println("result > goalFraction: " + result + " after " + round + " rounds");
+            	System.out.println("Round: " + round + " base vs learner: " + result +" Status: finished");
+            	System.out.println("");
             	return learner;
             }
             else {
-            	System.out.println("learner lost to base with result: " + result + "in round " + round);
+            	System.out.println("Round: " + round + " base vs learner: " + result);
             }
     	}
-    	System.out.println("Maximum rounds played");
+    	System.out.println("Status: failed");
+    	System.out.println("");
         return learner;
     }
     
@@ -99,8 +101,26 @@ public class LinearSelectorLearner {
      * @return Den gelernten Selektor.
      */
     public LinearSelector learnUnsupervised(int rounds, double goalFraction, LinearSelector base) {
-        //TODO: Bitte Implementieren!
-        return null;
+    	LinearSelector learner = (LinearSelector)base.clone();
+    	for (int round = 0; round < rounds; round++) {
+    		Game g = new Game(learner, learner, false);
+            g.run(false);
+            g.closeGameWindow();
+            List<Board> li = g.getHistory();
+            trainUnsupervised(learner, li);
+            double result = fractionOfGamesWon(base, learner, 100);
+            if(result > goalFraction) {
+            	System.out.println("Round: " + round + " base vs learner: " + result +" Status: finished");
+            	System.out.println("");
+            	return learner;
+            }
+            else {
+            	System.out.println("Round: " + round + " base vs learner: " + result);
+            }
+    	}
+    	System.out.println("Status: failed");
+    	System.out.println("");
+        return learner;
     }
     
     
@@ -110,6 +130,36 @@ public class LinearSelectorLearner {
      */
     private void trainUnsupervised(LinearSelector s, List<Board> li) {
         //TODO: Bitte Implementieren!
+    	double c = 0.00015;
+    	double factBasis = s.getFactBasis();
+	    double factNrPiecesSelf = s.getFactNrPiecesSelf();
+	    double factNrPiecesOther = s.getFactNrPiecesOther();
+	    double factNrKingsSelf = s.getFactNrKingsSelf();
+	    double factNrKingsOther = s.getFactNrKingsOther();
+	    double factNrThreatenedPiecesSelf = s.getFactNrThreatenedPiecesSelf();
+	    double factNrThreatenedPiecesOther = s.getFactNrThreatenedPiecesOther();
+	    double factNrStuckSelfPieces = s.getFactNrStuckSelfPieces();
+	    double factNrStuckOtherPieces = s.getFactNrStuckOtherPieces();
+		for(int i = 0; i<li.size()-2; i++) {
+	    	double fehler = s.evaluate(li.get(i), 2) - s.evaluate(li.get(i+2), 2);
+		   	factNrPiecesSelf = factNrPiecesSelf + c * fehler * li.get(i).getNumberOfPiecesFor(2);
+		   	factNrPiecesOther = factNrPiecesOther + c * fehler * li.get(i).getNumberOfPiecesFor(1);
+		   	factNrKingsSelf = factNrKingsSelf + c * fehler * li.get(i).getNumberOfKingsFor(2);
+		   	factNrKingsOther = factNrKingsOther + c * fehler * li.get(i).getNumberOfKingsFor(1);
+		   	factNrThreatenedPiecesSelf = factNrThreatenedPiecesSelf + c * fehler * s.piecesThreatened(li.get(i), 2);
+		   	factNrThreatenedPiecesOther = factNrThreatenedPiecesOther + c * fehler * s.piecesThreatened(li.get(i), 1);
+		   	factNrStuckSelfPieces = factNrStuckSelfPieces + c * fehler * s.piecesStuck(li.get(i), 2);
+		   	factNrStuckOtherPieces = factNrStuckOtherPieces + c * fehler * s.piecesStuck(li.get(i), 1);		   	
+		}
+		s.setFactBasis(factBasis);
+		s.setFactNrPiecesSelf(factNrPiecesSelf);
+		s.setFactNrPiecesOther(factNrPiecesOther);
+		s.setFactNrKingsSelf(factNrKingsSelf);
+		s.setFactNrKingsOther(factNrKingsOther);
+		s.setFactNrThreatenedPiecesSelf(factNrThreatenedPiecesSelf);
+		s.setFactNrThreatenedPiecesOther(factNrThreatenedPiecesOther);
+		s.setFactNrStuckSelfPieces(factNrStuckSelfPieces);
+		s.setFactNrStuckOtherPieces(factNrStuckOtherPieces);
     }
     
     
@@ -145,17 +195,17 @@ public class LinearSelectorLearner {
         LinearSelectorLearner learner = new LinearSelectorLearner();
         //LinearSelector base = new LinearSelector(8);
         LinearSelector base = new LinearSelector(8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0);
-        LinearSelector learned = learner.learnUnsupervised(1000000, 0.8, base);
         HumanIntuitionLinearSelector human = new HumanIntuitionLinearSelector();
-        //System.out.println(learned);
-//        System.out.println("base vs human(=learner)" + learner.fractionOfGamesWon(base, human, 1000));
-//        System.out.println("human vs base(=learner) " + learner.fractionOfGamesWon(human, base, 1000));
-        LinearSelector test = learner.learnSupervised(100, 0.98, base, human);
-        System.out.println("base vs base(=learner) " + learner.fractionOfGamesWon(base, base, 1000));
-        System.out.println("base vs base(=learner) " + learner.fractionOfGamesWon(base, test, 1000));
-        Game g = new Game(base, test, false);
-        g.run(true);
-        g.closeGameWindow();
+        System.out.println("base vs supervised_tester(=learner)");
+        LinearSelector supervised_tester = learner.learnSupervised(1000, 0.98, base, human);
+        System.out.println("base vs unsupervised_tester(=learner)");
+        LinearSelector unsupervised_tester = learner.learnUnsupervised(1000, 0.80, base);
+        
+        System.out.println("base vs base " + learner.fractionOfGamesWon(base, base, 1000));
+        System.out.println("human vs base_tester " + learner.fractionOfGamesWon(human, base, 1000));
+        System.out.println("base vs supervised_tester(=learner) " + learner.fractionOfGamesWon(base, supervised_tester, 1000));
+        System.out.println("human vs supervised_tester(=learner) " + learner.fractionOfGamesWon(base, supervised_tester, 1000));
+        System.out.println("base vs unsupervised_tester(=learner) " + learner.fractionOfGamesWon(base, unsupervised_tester, 1000));
     }
 }
 
